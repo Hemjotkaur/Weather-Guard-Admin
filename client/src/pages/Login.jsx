@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-hot-toast";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -7,11 +9,34 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    navigate('/');
+  const userLogin = async () => {
+    try {
+      const { data } = await axios.post(
+        "http://localhost:3000/api/admin/login",
+        { email, password },
+      );
+      console.log("data", data);
+      if (data.success) {
+        localStorage.setItem("token", data.token);
+        toast.success(data.message);
+        navigate("/details");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log("error", error);
+      toast.error(error);
+    }
   };
 
+  const handleSubmit = (e) => {
+    console.log("event", e);
+    e.preventDefault();
+    userLogin();
+    // navigate("/");
+  };
+
+  console.log("login");
   return (
     <div
       className="min-h-screen bg-cover bg-center flex items-center justify-center px-4"
